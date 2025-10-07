@@ -13,7 +13,9 @@ function Search() {
   const BASE_URL = "https://api.themoviedb.org/3";
   const IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
   const [query, setQuery] = useState("");
+
   const [suggestions, setSuggestions] = useState([]);
+
    useEffect(() => {
        const fetchMovies = async () => {
          setLoading(true);
@@ -29,29 +31,34 @@ function Search() {
 
      useEffect(() => {
     const fetchSuggestions = async () => {
-      if (query.length < 2) {
-        setSuggestions([]);
-        return;
-      }
+      // if (query.length < 2) {
+      //   setSuggestions([]);
+      //   return;
+      // }
 
       try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&language=en-US&query=${encodeURIComponent(
-            query
-          )}&page=1&include_adult=false`
-        );
-        const data = await response.json();
-        const validResults = data.results.filter(
-          (item) => item.media_type === "movie" || item.media_type === "tv"
-        );
-        setSuggestions(validResults.slice(0, 10)); // limit to 8 results
+        // if(query !== ""){
+          const response = await fetch(
+            `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&language=en-US&query=${encodeURIComponent(query)}&page=1&include_adult=false`
+          );
+          const data = await response.json();
+          // console.log(data)
+          // if(data.results == 0 ){
+          //   setFound("")
+          //   setValue(query)
+          //   return
+          // }else{
+             const validResults = data.results.filter(
+            (item) => item.media_type === "movie" || item.media_type === "tv"
+          );
+          setSuggestions(validResults.slice(0, 10)); 
+          // }
+        // } 
       } catch (error) {
         console.error("Error fetching suggestions:", error);
       }
     };
-
-    const debounce = setTimeout(fetchSuggestions, 400); // delay typing
-    return () => clearTimeout(debounce);
+    fetchSuggestions()
   }, [query]);
 
   const highlightMatch = (title) => {
@@ -79,13 +86,15 @@ function Search() {
           </div>
           <div className='mt-0 mt-lg-4 l-1'>
             {/* <form action="" className='d-flex flex-row gap-2'> */}
-              <input type="text" className='form-control border-info w-75 font' placeholder='Search for any kind of movies' value={query} onChange={(e) => setQuery(e.target.value)}/>
+              <input type="text" className='form-control border-info w-75 font' placeholder='Search for any kind of movies' onChange={(e) =>{setQuery(e.target.value)}}/>
               {/* <button className='btn btn-info text-white font'>Search</button> */}
             {/* </form> */}
             
           </div>
         </div>
-             {suggestions.length > 0 && (
+            {query && suggestions.length==0 ? ( <p className='text-center text-warning font fs-5'>No result found for <span className='text-success'>"{query}"</span></p>):
+            (
+               //  {suggestions.length > 0 && (
         <ul className= " list-group  w-100 container mt-2  text-white mt-3 fs-6 ">
           {suggestions.map((item) => (
             <li
@@ -108,7 +117,9 @@ function Search() {
                </li>
           ))}
         </ul>
-      )}
+      
+            )
+            }
                <div className='pb-6'>
                    <h2 className='mt-1 mb-3 font'>Movies for you</h2>
                    <div className='row mb-4 '>
